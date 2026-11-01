@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GST Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-add {
+            background-color: #2e7d32;
+        }
+        .btn-add:hover {
+            background-color: #1b5e20;
+        }
+        .btn-sub {
+            background-color: #c62828;
+        }
+        .btn-sub:hover {
+            background-color: #b71c1c;
+        }
+        .results {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+        .results h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #444;
+        }
+        .gross-total {
+            font-weight: bold;
+            font-size: 16px;
+            color: #000;
+            border-top: 1px solid #ddd;
+            padding-top: 8px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>GST Calculator</h2>
+        
+        <div class="form-group">
+            <label for="amount">Enter Amount (Base or Gross):</label>
+            <input type="number" id="amount" placeholder="e.g. 8000 or 9440" step="any">
+        </div>
+
+        <div class="form-group">
+            <label for="gstRate">GST Percentage (%):</label>
+            <input type="number" id="gstRate" placeholder="e.g. 18" step="any">
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-add" onclick="calculateGst(true)">Add GST</button>
+            <button class="btn-sub" onclick="calculateGst(false)">Subtract GST</button>
+        </div>
+
+        <div class="results">
+            <h3>Calculation Results</h3>
+            <div class="result-item">
+                <span>Base Amount:</span>
+                <span id="resBase">₹0.00</span>
+            </div>
+            <div class="result-item">
+                <span>Total GST:</span>
+                <span id="resTotalGst">₹0.00</span>
+            </div>
+            <div class="result-item">
+                <span id="labelCgst">CGST (9%):</span>
+                <span id="resCgst">₹0.00</span>
+            </div>
+            <div class="result-item">
+                <span id="labelSgst">SGST (9%):</span>
+                <span id="resSgst">₹0.00</span>
+            </div>
+            <div class="result-item gross-total">
+                <span>Gross Total:</span>
+                <span id="resGross">₹0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateGst(isAdd) {
+            const amountInput = document.getElementById('amount').value;
+            const rateInput = document.getElementById('gstRate').value;
+
+            if (!amountInput || !rateInput) {
+                alert("Please enter both the amount and GST percentage.");
+                return;
+            }
+
+            const val = parseFloat(amountInput);
+            const rate = parseFloat(rateInput);
+            const halfRate = rate / 2;
+
+            let base, totalGst, gross;
+
+            if (isAdd) {
+                // Forward Calculation: Add GST to Net/Base Value
+                base = val;
+                totalGst = base * (rate / 100);
+                gross = base + totalGst;
+            } else {
+                // Reverse Calculation: Subtract GST from Gross Value
+                gross = val;
+                base = gross / (1 + (rate / 100));
+                totalGst = gross - base;
+            }
+
+            // CGST and SGST are calculated based on half the GST rate applied to the base amount
+            const cgst = base * (halfRate / 100);
+            const sgst = base * (halfRate / 100);
+
+            // Update UI labels and values dynamically
+            document.getElementById('labelCgst').innerText = `CGST (${halfRate}%):`;
+            document.getElementById('labelSgst').innerText = `SGST (${halfRate}%):`;
+
+            document.getElementById('resBase').innerText = `₹${base.toFixed(2)}`;
+            document.getElementById('resTotalGst').innerText = `₹${totalGst.toFixed(2)}`;
+            document.getElementById('resCgst').innerText = `₹${cgst.toFixed(2)}`;
+            document.getElementById('resSgst').innerText = `₹${sgst.toFixed(2)}`;
+            document.getElementById('resGross').innerText = `₹${gross.toFixed(2)}`;
+        }
+    </script>
+
+</body>
+</html>
